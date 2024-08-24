@@ -18,4 +18,7 @@ typedef struct s_args {
 	int num_times_each_philosopher_must_eat;
 }  args_t;
 
+// utils.c
+int	ft_atoi(char *str);
+
 #endif //PHILOSOPHERS_PHILOSOPHERS_H
