@@ -1,12 +1,11 @@
 #include "philosophers.h"
 
-void philosopher_init(philosopher_t *philosopher, int id, int num_philosophers) {
+void philosopher_init(t_philosopher *philosopher, int id, int num_philosophers) {
 	philosopher->id = id;
 	philosopher->num_philosophers = num_philosophers;
 }
 
 void *philosopher_thread(void *arg) {
-	philosopher_t *philosopher = (philosopher_t *)arg;
 	pthread_mutex_t forks[philosopher->num_philosophers];
 
 	while (1) {

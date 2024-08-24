@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]) {
 	// Initialize the arguments
-	args_t args;
+	t_args args;
 	if (init_args(&args, argc, argv)) {
 		return 1;
 	}

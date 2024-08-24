@@ -9,7 +9,7 @@
 typedef struct s_philosopher {
 	int id;
 	struct s_args *args;
-}  philosopher_t;
+}  t_philosopher;
 
 typedef struct s_args {
 	int num_philosophers;
@@ -19,6 +19,8 @@ typedef struct s_args {
 	int num_times_each_philosopher_must_eat;
 	struct s_philosopher *philosophers;
 }  args_t;
+	t_philosopher *philosophers;
+}  t_args;
 
 // utils.c
 int	ft_atoi(char *str);
@@ -27,6 +29,6 @@ int	ft_atoi(char *str);
 void start_philosophers(int num_philosophers);
 
 // init.c
-int init_args(args_t *args, int argc, char *argv[]);
+int init_args(t_args *args, int argc, char *argv[]);
 
 #endif //PHILOSOPHERS_PHILOSOPHERS_H

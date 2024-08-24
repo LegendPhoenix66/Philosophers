@@ -1,6 +1,6 @@
 #include "philosophers.h"
 
-int init_args(args_t *args, int argc, char *argv[])
+int init_args(t_args *args, int argc, char *argv[])
 {
 	if (argc != 5 && argc != 6)
 	{
@@ -20,7 +20,7 @@ int init_args(args_t *args, int argc, char *argv[])
 		printf("Invalid arguments\n");
 		return (1);
 	}
-	args->philosophers = malloc(sizeof(philosopher_t) * args->num_philosophers);
+	args->philosophers = malloc(sizeof(t_philosopher) * args->num_philosophers);
 	for (int i = 0; i < args->num_philosophers; i++)
 	{
 		args->philosophers[i].id = i;
