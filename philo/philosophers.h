@@ -8,7 +8,7 @@
 
 typedef struct s_philosopher {
 	int id;
-	int num_philosophers;
+	struct s_args *args;
 }  philosopher_t;
 
 typedef struct s_args {
