@@ -21,4 +21,7 @@ typedef struct s_args {
 // utils.c
 int	ft_atoi(char *str);
 
+// philosophers.c
+void start_philosophers(int num_philosophers);
+
 #endif //PHILOSOPHERS_PHILOSOPHERS_H
