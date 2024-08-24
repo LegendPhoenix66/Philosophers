@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 typedef struct s_philosopher {
 	int id;
@@ -16,6 +17,7 @@ typedef struct s_args {
 	int time_to_eat;
 	int time_to_sleep;
 	int num_times_each_philosopher_must_eat;
+	struct s_philosopher *philosophers;
 }  args_t;
 
 // utils.c

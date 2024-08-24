@@ -20,7 +20,6 @@ int init_args(args_t *args, int argc, char *argv[])
 		printf("Invalid arguments\n");
 		return (1);
 	}
-    printf("time_to_die: %d\n", args->time_to_die);
-    printf("args->time_to_die < 0 : %d\n", args->time_to_die < 0);
+	args->philosophers = malloc(sizeof(philosopher_t) * args->num_philosophers);
 	return (0);
 }
