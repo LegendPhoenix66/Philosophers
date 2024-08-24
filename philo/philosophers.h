@@ -17,16 +17,15 @@ typedef struct s_args {
 	int time_to_eat;
 	int time_to_sleep;
 	int num_times_each_philosopher_must_eat;
-	struct s_philosopher *philosophers;
-}  args_t;
 	t_philosopher *philosophers;
+	pthread_mutex_t *forks;
 }  t_args;
 
 // utils.c
 int	ft_atoi(char *str);
 
 // philosophers.c
-void start_philosophers(int num_philosophers);
+void start_philosophers(t_args* args);
 
 // init.c
 int init_args(t_args *args, int argc, char *argv[]);

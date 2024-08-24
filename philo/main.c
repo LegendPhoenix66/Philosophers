@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Start the philosophers
-	start_philosophers(args.num_philosophers);
+	start_philosophers(&args);
 
 	return 0;
 }
