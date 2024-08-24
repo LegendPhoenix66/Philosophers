@@ -24,4 +24,7 @@ int	ft_atoi(char *str);
 // philosophers.c
 void start_philosophers(int num_philosophers);
 
+// init.c
+int init_args(args_t *args, int argc, char *argv[]);
+
 #endif //PHILOSOPHERS_PHILOSOPHERS_H
