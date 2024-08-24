@@ -1,5 +1,26 @@
 #include "philosophers.h"
 
+int init_forks(t_args *args)
+{
+	args->forks = malloc(sizeof(pthread_mutex_t) * args->num_philosophers);
+	for (int i = 0; i < args->num_philosophers; i++)
+	{
+		pthread_mutex_init(&args->forks[i], NULL);
+	}
+	return (0);
+}
+
+int init_philosophers(t_args *args)
+{
+	args->philosophers = malloc(sizeof(t_philosopher) * args->num_philosophers);
+	for (int i = 0; i < args->num_philosophers; i++)
+	{
+		args->philosophers[i].id = i;
+		args->philosophers[i].args = args;
+	}
+	return (0);
+}
+
 int init_args(t_args *args, int argc, char *argv[])
 {
 	if (argc != 5 && argc != 6)
@@ -20,11 +41,7 @@ int init_args(t_args *args, int argc, char *argv[])
 		printf("Invalid arguments\n");
 		return (1);
 	}
-	args->philosophers = malloc(sizeof(t_philosopher) * args->num_philosophers);
-	for (int i = 0; i < args->num_philosophers; i++)
-	{
-		args->philosophers[i].id = i;
-		args->philosophers[i].args = args;
-	}
+	init_forks(args);
+	init_philosophers(args);
 	return (0);
 }
