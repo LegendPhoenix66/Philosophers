@@ -1,14 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/26 12:06:32 by lhopp             #+#    #+#             */
+/*   Updated: 2024/08/26 12:06:33 by lhopp            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosophers.h"
 
-int main(int argc, char *argv[]) {
-	// Initialize the arguments
-	t_args args;
-	if (init_args(&args, argc, argv)) {
-		return 1;
+int	main(int argc, char *argv[])
+{
+	t_args	args;
+
+	if (init_args(&args, argc, argv))
+	{
+		return (1);
 	}
-
-	// Start the philosophers
 	start_philosophers(&args);
-
-	return 0;
+	return (0);
 }
