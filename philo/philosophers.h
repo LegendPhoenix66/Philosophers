@@ -21,6 +21,7 @@ typedef struct s_args {
 	int time_to_sleep;
 	int num_times_each_philosopher_must_eat;
 	int all_philosophers_done;
+	int philosopher_died;
 	t_philosopher *philosophers;
 	pthread_mutex_t *forks;
 }  t_args;

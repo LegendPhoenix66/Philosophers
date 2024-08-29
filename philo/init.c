@@ -56,6 +56,7 @@ int	init_args(t_args *args, int argc, char *argv[])
 	args->time_to_eat = ft_atoi(argv[3]);
 	args->time_to_sleep = ft_atoi(argv[4]);
 	args->all_philosophers_done = 0;
+	args->philosopher_died = 0;
 	if (argc == 6)
 	{
 		args->num_times_each_philosopher_must_eat = ft_atoi(argv[5]);
