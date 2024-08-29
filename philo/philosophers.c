@@ -33,11 +33,22 @@ void	philosopher_eat(const t_philosopher *philosopher)
 	}
 	print_log(philosopher, "is eating");
 	usleep(philosopher->args->time_to_eat * 1000);
-	pthread_mutex_unlock(&philosopher->args->forks[(philosopher->id + 1)
-		% philosopher->args->num_philosophers]);
-	print_log(philosopher, "is putting down the right fork");
-	pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
-	print_log(philosopher, "is putting down the left fork");
+	if (philosopher->id % 2 == 0)
+	{
+		pthread_mutex_unlock(&philosopher->args->forks[(philosopher->id + 1)
+			% philosopher->args->num_philosophers]);
+		print_log(philosopher, "is putting down the right fork");
+		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
+		print_log(philosopher, "is putting down the left fork");
+	}
+	else
+	{
+		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
+		print_log(philosopher, "is putting down the left fork");
+		pthread_mutex_unlock(&philosopher->args->forks[(philosopher->id + 1)
+			% philosopher->args->num_philosophers]);
+		print_log(philosopher, "is putting down the right fork");
+	}
 }
 
 void	*philosopher_thread(void *arg)
