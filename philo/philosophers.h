@@ -9,6 +9,8 @@
 
 typedef struct s_philosopher {
 	int id;
+	int meals_eaten;
+	struct timeval last_meal_time;
 	struct s_args *args;
 }  t_philosopher;
 
@@ -18,6 +20,7 @@ typedef struct s_args {
 	int time_to_eat;
 	int time_to_sleep;
 	int num_times_each_philosopher_must_eat;
+	int all_philosophers_done;
 	t_philosopher *philosophers;
 	pthread_mutex_t *forks;
 }  t_args;
