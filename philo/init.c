@@ -68,7 +68,7 @@ int	init_args(t_args *args, int argc, char *argv[])
 	}
 	else
 		args->num_times_each_philosopher_must_eat = -1;
-	if (args->num_philosophers < 2 || args->time_to_die <= 0
+	if (args->num_philosophers < 1 || args->time_to_die <= 0
 		|| args->time_to_eat <= 0 || args->time_to_sleep <= 0)
 	{
 		printf("Invalid arguments\n");
