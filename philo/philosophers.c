@@ -72,7 +72,7 @@ void	*philosopher_thread(void *arg)
 
 	philosopher = (t_philosopher *)arg;
 	args = philosopher->args;
-	while (args->num_times_each_philosopher_must_eat > philosopher->meals_eaten
+	while ((args->num_times_each_philosopher_must_eat > philosopher->meals_eaten || args->num_times_each_philosopher_must_eat == -1)
 		&& !args->philosopher_died)
 	{
 		print_log(philosopher, "is thinking");
