@@ -12,12 +12,14 @@
 
 #include "philosophers.h"
 
-void	print_log(const t_philosopher *philo, char *str)
+void	print_log(t_args *args, const t_philosopher *philo, char *str)
 {
 	struct timeval	tv;
 	struct timezone	tz;
 	long			timestamp_in_ms;
 
+	if (args->philosopher_died == 1)
+		return ;
 	gettimeofday(&tv, &tz);
 	timestamp_in_ms = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	printf("%ld %d %s\n", timestamp_in_ms, philo->id, str);
