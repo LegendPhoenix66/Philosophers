@@ -14,54 +14,73 @@
 
 void pick_up_forks(t_philosopher *philosopher)
 {
-	if (philosopher->id % 2 == 0)
-	{
+
+	int first_fork;
+	int second_fork;
+
+	if (philosopher->args->num_philosophers == 1) {
+		// Special case for one philosopher
 		pthread_mutex_lock(&philosopher->args->forks[philosopher->id]);
 		print_log(philosopher, "is picking up the left fork");
-		pthread_mutex_lock(&philosopher->args->forks[(philosopher->id + 1)
-			% philosopher->args->num_philosophers]);
-		print_log(philosopher, "is picking up the right fork");
+		// sleep until the philosopher dies
+		while (!philosopher->args->philosopher_died)
+			usleep(1000);
+		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
+		return;
 	}
-	else
-	{
-		pthread_mutex_lock(&philosopher->args->forks[(philosopher->id + 1)
-			% philosopher->args->num_philosophers]);
-		print_log(philosopher, "is picking up the right fork");
-		pthread_mutex_lock(&philosopher->args->forks[philosopher->id]);
-		print_log(philosopher, "is picking up the left fork");
+
+	if (philosopher->id % 2 == 0) {
+		first_fork = philosopher->id;
+		second_fork = (philosopher->id + 1) % philosopher->args->num_philosophers;
+	} else {
+		first_fork = (philosopher->id + 1) % philosopher->args->num_philosophers;
+		second_fork = philosopher->id;
 	}
+
+	pthread_mutex_lock(&philosopher->args->forks[first_fork]);
+	print_log(philosopher, "is picking up the left fork");
+	pthread_mutex_lock(&philosopher->args->forks[(second_fork)
+												 % philosopher->args->num_philosophers]);
+	print_log(philosopher, "is picking up the right fork");
 }
 
 void put_down_forks(t_philosopher *philosopher)
 {
-	if (philosopher->id % 2 == 0)
-	{
-		pthread_mutex_unlock(&philosopher->args->forks[(philosopher->id + 1)
-			% philosopher->args->num_philosophers]);
-		print_log(philosopher, "is putting down the right fork");
-		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
-		print_log(philosopher, "is putting down the left fork");
+	int first_fork;
+	int second_fork;
+
+	if (philosopher->id % 2 == 0) {
+		first_fork = philosopher->id;
+		second_fork = (philosopher->id + 1) % philosopher->args->num_philosophers;
+	} else {
+		first_fork = (philosopher->id + 1) % philosopher->args->num_philosophers;
+		second_fork = philosopher->id;
 	}
-	else
-	{
-		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
-		print_log(philosopher, "is putting down the left fork");
-		pthread_mutex_unlock(&philosopher->args->forks[(philosopher->id + 1)
-			% philosopher->args->num_philosophers]);
-		print_log(philosopher, "is putting down the right fork");
+
+	if (philosopher->args->philosopher_died) {
+		pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
+		pthread_mutex_unlock(&philosopher->args->forks[(second_fork)
+													 % philosopher->args->num_philosophers]);
+		return;
 	}
+
+	pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
+	print_log(philosopher, "is putting down the right fork");
+	pthread_mutex_unlock(&philosopher->args->forks[(second_fork)
+												 % philosopher->args->num_philosophers]);
+	print_log(philosopher, "is putting down the left fork");
 }
 
 void philosopher_eat(t_philosopher *philosopher)
 {
 	print_log(philosopher, "is hungry");
 	pick_up_forks(philosopher);
-	print_log(philosopher, "is eating");
-	gettimeofday(&philosopher->last_meal_time, NULL);
-	usleep(philosopher->args->time_to_eat * 1000);
+	if (!philosopher->args->philosopher_died) {
+		print_log(philosopher, "is eating");
+		gettimeofday(&philosopher->last_meal_time, NULL);
+		usleep(philosopher->args->time_to_eat * 1000);
+	}
 	put_down_forks(philosopher);
-	if (philosopher->args->philosopher_died)
-		return ;
 }
 
 void	*philosopher_thread(void *arg)
@@ -112,7 +131,7 @@ void	*check_death(void *arg)
 		i = 0;
 		while (i < args->num_philosophers)
 		{
-			if (args->philosophers[i].meals_eaten >= args->num_times_each_philosopher_must_eat)
+			if (args->philosophers[i].meals_eaten >= args->num_times_each_philosopher_must_eat && args->num_times_each_philosopher_must_eat != -1)
 			{
 				i++;
 				continue ;
@@ -122,7 +141,7 @@ void	*check_death(void *arg)
 					/ 1000) - (args->philosophers[i].last_meal_time.tv_sec
 					* 1000 + args->philosophers[i].last_meal_time.tv_usec
 					/ 1000);
-			if (time_diff > args->time_to_die)
+			if (time_diff > args->time_to_die+1)
 			{
 				print_log(&args->philosophers[i], "died");
 				args->philosopher_died = 1;
@@ -142,13 +161,13 @@ void	start_philosophers(t_args *args)
 	int			i;
 
 	i = 0;
+	pthread_create(&death_thread, NULL, check_death, args);
 	while (i < args->num_philosophers)
 	{
 		pthread_create(&threads[i], NULL, philosopher_thread,
 			&args->philosophers[i]);
 		i++;
 	}
-	pthread_create(&death_thread, NULL, check_death, args);
 	i = 0;
 	while (i < args->num_philosophers)
 	{

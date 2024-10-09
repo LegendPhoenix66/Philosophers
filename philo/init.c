@@ -36,6 +36,8 @@ int	init_philosophers(t_args *args)
 	{
 		args->philosophers[i].id = i;
 		args->philosophers[i].args = args;
+		args->philosophers[i].alive = 1;
+		args->philosophers[i].meals_eaten = 0;
 		gettimeofday(&args->philosophers[i].last_meal_time, NULL);
 		i++;
 	}

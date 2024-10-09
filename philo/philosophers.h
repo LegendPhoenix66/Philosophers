@@ -10,6 +10,7 @@
 typedef struct s_philosopher {
 	int id;
 	int meals_eaten;
+	int alive;
 	struct timeval last_meal_time;
 	struct s_args *args;
 }  t_philosopher;
