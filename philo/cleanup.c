@@ -1,26 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/26 12:06:32 by lhopp             #+#    #+#             */
-/*   Updated: 2024/08/26 12:06:33 by lhopp            ###   ########.fr       */
+/*   Created: 2024/11/04 15:20:21 by lhopp             #+#    #+#             */
+/*   Updated: 2024/11/04 15:20:38 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int	main(int argc, char *argv[])
+void	cleanup(t_args *args)
 {
-	t_args	args;
+	int	i;
 
-	if (init_args(&args, argc, argv))
+	// Destroy each mutex
+	for (i = 0; i < args->num_philosophers; i++)
 	{
-		return (1);
+		pthread_mutex_destroy(&args->forks[i]);
 	}
-	start_philosophers(&args);
-	cleanup(&args);
-	return (0);
+	// Free the allocated memory for forks
+	free(args->forks);
+	// Free the allocated memory for philosophers
+	free(args->philosophers);
 }
