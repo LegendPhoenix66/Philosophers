@@ -6,11 +6,37 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/26 15:04:30 by lhopp             #+#    #+#             */
-/*   Updated: 2024/10/09 15:40:19 by lhopp            ###   ########.fr       */
+/*   Updated: 2024/11/04 16:38:04 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+void	determine_forks(const t_philosopher *philosopher, int *left_fork,
+		int *right_fork)
+{
+	if (philosopher->id % 2 == 0)
+	{
+		*left_fork = philosopher->id;
+		*right_fork = (philosopher->id + 1)
+			% philosopher->args->num_philosophers;
+	}
+	else
+	{
+		*left_fork = (philosopher->id + 1)
+			% philosopher->args->num_philosophers;
+		*right_fork = philosopher->id;
+	}
+}
+
+void	handle_single_philosopher(t_args *args, t_philosopher *philosopher)
+{
+	pthread_mutex_lock(&philosopher->args->forks[philosopher->id]);
+	print_log(args, philosopher, "is picking up the left fork");
+	while (!philosopher->args->philosopher_died)
+		usleep(1000);
+	pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
+}
 
 void	pick_up_forks(t_args *args, t_philosopher *philosopher)
 {
@@ -19,25 +45,10 @@ void	pick_up_forks(t_args *args, t_philosopher *philosopher)
 
 	if (philosopher->args->num_philosophers == 1)
 	{
-		pthread_mutex_lock(&philosopher->args->forks[philosopher->id]);
-		print_log(args, philosopher, "is picking up the left fork");
-		while (!philosopher->args->philosopher_died)
-			usleep(1000);
-		pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
+		handle_single_philosopher(args, philosopher);
 		return ;
 	}
-	if (philosopher->id % 2 == 0)
-	{
-		first_fork = philosopher->id;
-		second_fork = (philosopher->id + 1)
-			% philosopher->args->num_philosophers;
-	}
-	else
-	{
-		first_fork = (philosopher->id + 1)
-			% philosopher->args->num_philosophers;
-		second_fork = philosopher->id;
-	}
+	determine_forks(philosopher, &first_fork, &second_fork);
 	pthread_mutex_lock(&philosopher->args->forks[first_fork]);
 	print_log(args, philosopher, "is picking up the left fork");
 	pthread_mutex_lock(&philosopher->args->forks[(second_fork)
@@ -50,18 +61,7 @@ void	put_down_forks(t_args *args, t_philosopher *philosopher)
 	int	first_fork;
 	int	second_fork;
 
-	if (philosopher->id % 2 == 0)
-	{
-		first_fork = philosopher->id;
-		second_fork = (philosopher->id + 1)
-			% philosopher->args->num_philosophers;
-	}
-	else
-	{
-		first_fork = (philosopher->id + 1)
-			% philosopher->args->num_philosophers;
-		second_fork = philosopher->id;
-	}
+	determine_forks(philosopher, &first_fork, &second_fork);
 	if (philosopher->args->philosopher_died)
 	{
 		pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
@@ -89,11 +89,24 @@ void	philosopher_eat(t_args *args, t_philosopher *philosopher)
 	put_down_forks(args, philosopher);
 }
 
+int	all_philosophers_done(t_args *args)
+{
+	int	i;
+
+	i = 0;
+	while (i < args->num_philosophers)
+	{
+		if (args->philosophers[i].meals_eaten < args->num_times_each_philosopher_must_eat)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 void	*philosopher_thread(void *arg)
 {
 	t_philosopher	*philosopher;
 	t_args			*args;
-	int				all_done;
 
 	philosopher = (t_philosopher *)arg;
 	args = philosopher->args;
@@ -109,19 +122,8 @@ void	*philosopher_thread(void *arg)
 		print_log(args, philosopher, "is sleeping");
 		usleep(philosopher->args->time_to_sleep * 1000);
 	}
-	all_done = 1;
-	for (int i = 0; i < args->num_philosophers; i++)
-	{
-		if (args->philosophers[i].meals_eaten < args->num_times_each_philosopher_must_eat)
-		{
-			all_done = 0;
-			break ;
-		}
-	}
-	if (all_done)
-	{
+	if (all_philosophers_done(args))
 		args->all_philosophers_done = 1;
-	}
 	return (NULL);
 }
 
