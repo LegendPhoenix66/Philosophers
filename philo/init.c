@@ -47,8 +47,8 @@ int	init_philosophers(t_args *args)
 void	print_usage(char *program_name)
 {
 	printf("Usage: %s <number_of_philosophers> <time_to_die> <time_to_eat> "
-			"<time_to_sleep> [<number_of_times_each_philosopher_must_eat>]\n",
-			program_name);
+		"<time_to_sleep> [<number_of_times_each_philosopher_must_eat>]\n",
+		program_name);
 }
 
 int	validate_args(int num_philosophers, int time_to_die, int time_to_eat,

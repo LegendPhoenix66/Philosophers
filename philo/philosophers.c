@@ -127,12 +127,40 @@ void	*philosopher_thread(void *arg)
 	return (NULL);
 }
 
-void	*check_death(void *arg)
+int	is_philosopher_dead(t_philosopher *philosopher, long time_to_die)
 {
-	t_args			*args;
-	int				i;
 	struct timeval	current_time;
 	long			time_diff;
+	long			last_meal_time_ms;
+	long			current_time_ms;
+
+	gettimeofday(&current_time, NULL);
+	last_meal_time_ms = philosopher->last_meal_time.tv_sec * 1000
+		+ philosopher->last_meal_time.tv_usec / 1000;
+	current_time_ms = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
+	time_diff = current_time_ms - last_meal_time_ms;
+	return (time_diff > time_to_die + 1);
+}
+
+void	check_individual_philosopher(t_args *arguments, int i)
+{
+	if (arguments->philosophers[i].meals_eaten >= arguments->num_times_each_philosopher_must_eat
+		&& arguments->num_times_each_philosopher_must_eat != -1)
+	{
+		return ;
+	}
+	if (is_philosopher_dead(&arguments->philosophers[i],
+			arguments->time_to_die))
+	{
+		print_log(arguments, &arguments->philosophers[i], "died");
+		arguments->philosopher_died = 1;
+	}
+}
+
+void	*check_death(void *arg)
+{
+	t_args	*args;
+	int		i;
 
 	args = (t_args *)arg;
 	while (!args->all_philosophers_done && !args->philosopher_died)
@@ -140,23 +168,7 @@ void	*check_death(void *arg)
 		i = 0;
 		while (i < args->num_philosophers)
 		{
-			if (args->philosophers[i].meals_eaten >= args->num_times_each_philosopher_must_eat
-				&& args->num_times_each_philosopher_must_eat != -1)
-			{
-				i++;
-				continue ;
-			}
-			gettimeofday(&current_time, NULL);
-			time_diff = (current_time.tv_sec * 1000 + current_time.tv_usec
-					/ 1000) - (args->philosophers[i].last_meal_time.tv_sec
-					* 1000 + args->philosophers[i].last_meal_time.tv_usec
-					/ 1000);
-			if (time_diff > args->time_to_die + 1)
-			{
-				print_log(args, &args->philosophers[i], "died");
-				args->philosopher_died = 1;
-				return (NULL);
-			}
+			check_individual_philosopher(arguments, i);
 			i++;
 		}
 		usleep(3000);

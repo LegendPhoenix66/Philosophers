@@ -51,7 +51,8 @@ void				start_philosophers(t_args *args);
 int					init_args(t_args *args, int argc, char *argv[]);
 
 // print.c
-void				print_log(t_args *args, const t_philosopher *philo, char *str);
+void				print_log(t_args *args, const t_philosopher *philo,
+						char *str);
 
 // cleanup.c
 void				cleanup(t_args *args);

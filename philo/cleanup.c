@@ -16,13 +16,12 @@ void	cleanup(t_args *args)
 {
 	int	i;
 
-	// Destroy each mutex
-	for (i = 0; i < args->num_philosophers; i++)
+	i = 0;
+	while (i < args->num_philosophers)
 	{
 		pthread_mutex_destroy(&args->forks[i]);
+		i++;
 	}
-	// Free the allocated memory for forks
 	free(args->forks);
-	// Free the allocated memory for philosophers
 	free(args->philosophers);
 }
