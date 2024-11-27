@@ -6,7 +6,7 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 15:40:39 by lhopp             #+#    #+#             */
-/*   Updated: 2024/10/09 15:41:04 by lhopp            ###   ########.fr       */
+/*   Updated: 2024/11/27 09:52:20 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,13 @@ typedef struct s_args
 
 // utils.c
 int					ft_atoi(char *str);
+void				print_usage(char *program_name);
 
 // philosophers.c
 void				start_philosophers(t_args *args);
+
+// eat.c
+void				philosopher_eat(t_args *args, t_philosopher *philosopher);
 
 // init.c
 int					init_args(t_args *args, int argc, char *argv[]);

@@ -6,7 +6,7 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/26 12:14:18 by lhopp             #+#    #+#             */
-/*   Updated: 2024/08/26 12:16:49 by lhopp            ###   ########.fr       */
+/*   Updated: 2024/11/27 09:52:52 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,11 @@ int	ft_atoi(char *str)
 		i++;
 	}
 	return (result * sign);
+}
+
+void	print_usage(char *program_name)
+{
+	printf("Usage: %s <number_of_philosophers> <time_to_die> <time_to_eat> "
+		"<time_to_sleep> [<number_of_times_each_philosopher_must_eat>]\n",
+		program_name);
 }
