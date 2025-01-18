@@ -8,7 +8,7 @@ CFLAGS = -Wall -Wextra -Werror
 HEADER = philo/philosophers.h
 
 # Source directory
-SRCDIR = philo
+SRCDIR = philosopher
 
 # Source files for the mandatory part
 SRC = $(wildcard $(SRCDIR)/*.c)
@@ -19,29 +19,22 @@ NAME = philo
 # Subfolder for object files
 OBJDIR = obj
 
-# Subfolder for the executable
-BUILDDIR = build
-
 # Object files for the mandatory part
 OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRC))
 
 # Rule for creating the library
-all: $(BUILDDIR)/$(NAME)
+all: $(NAME)
 
 # Rule to create the object directory if it doesn't exist
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
-
-# Rule to create the build directory if it doesn't exist
-$(BUILDDIR):
-	mkdir -p $(BUILDDIR)
 
 # Rule to build the object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Rule to build the executable
-$(BUILDDIR)/$(NAME): $(OBJS) | $(BUILDDIR)
+$(NAME): $(OBJS) | $(BUILDDIR)
 	$(CC) $(CFLAGS) $(OBJS) -o $@
 
 # Clean rule
