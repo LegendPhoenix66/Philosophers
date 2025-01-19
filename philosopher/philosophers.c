@@ -19,9 +19,13 @@ int	all_philosophers_done(t_args *args)
 	i = 0;
 	while (i < args->num_philosophers)
 	{
-		if (args->philosophers[i].meals_eaten
-			< args->num_times_each_philosopher_must_eat)
+		pthread_mutex_lock(&args->philosophers[i].philo_lock);
+		if (args->philosophers[i].meals_eaten < args->num_times_each_philosopher_must_eat)
+		{
+			pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 			return (0);
+		}
+		pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 		i++;
 	}
 	return (1);
@@ -35,14 +39,20 @@ void	*philosopher_thread(void *arg)
 	philosopher = (t_philosopher *)arg;
 	args = philosopher->args;
 	while ((args->num_times_each_philosopher_must_eat > philosopher->meals_eaten
-			|| args->num_times_each_philosopher_must_eat == -1)
-		&& !args->philosopher_died)
+			|| args->num_times_each_philosopher_must_eat == -1))
 	{
+		pthread_mutex_lock(&args->global_lock);
+		if (args->philosopher_died)
+		{
+			pthread_mutex_unlock(&args->global_lock);
+			break ;
+		}
+		pthread_mutex_unlock(&args->global_lock);
 		print_log(args, philosopher, "is thinking");
 		philosopher_eat(args, philosopher);
-		if (args->philosopher_died)
-			break ;
+		pthread_mutex_lock(&philosopher->philo_lock);
 		philosopher->meals_eaten++;
+		pthread_mutex_unlock(&philosopher->philo_lock);
 		print_log(args, philosopher, "is sleeping");
 		usleep(philosopher->args->time_to_sleep * 1000);
 	}
@@ -56,10 +66,11 @@ int	check_philosopher_death(t_args *args, int i)
 	struct timeval	current_time;
 	long			time_diff;
 
-	if (args->philosophers[i].meals_eaten
-		>= args->num_times_each_philosopher_must_eat
+	pthread_mutex_lock(&args->philosophers[i].philo_lock);
+	if (args->philosophers[i].meals_eaten >= args->num_times_each_philosopher_must_eat
 		&& args->num_times_each_philosopher_must_eat != -1)
 	{
+		pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 		return (0);
 	}
 	gettimeofday(&current_time, NULL);
@@ -69,9 +80,13 @@ int	check_philosopher_death(t_args *args, int i)
 	if (time_diff > args->time_to_die + 1)
 	{
 		print_log(args, &args->philosophers[i], "died");
+		pthread_mutex_lock(&args->global_lock);
 		args->philosopher_died = 1;
+		pthread_mutex_unlock(&args->global_lock);
+		pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 		return (1);
 	}
+	pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 	return (0);
 }
 
@@ -81,8 +96,10 @@ void	*check_death(void *arg)
 	int		i;
 
 	args = (t_args *)arg;
+	pthread_mutex_lock(&args->global_lock);
 	while (!args->all_philosophers_done && !args->philosopher_died)
 	{
+		pthread_mutex_unlock(&args->global_lock);
 		i = 0;
 		while (i < args->num_philosophers)
 		{
@@ -91,7 +108,9 @@ void	*check_death(void *arg)
 			i++;
 		}
 		usleep(3000);
+		pthread_mutex_lock(&args->global_lock);
 	}
+	pthread_mutex_unlock(&args->global_lock);
 	return (NULL);
 }
 
