@@ -57,7 +57,11 @@ void	*philosopher_thread(void *arg)
 		usleep(philosopher->args->time_to_sleep * 1000);
 	}
 	if (all_philosophers_done(args))
+	{
+		pthread_mutex_lock(&args->global_lock);
 		args->all_philosophers_done = 1;
+		pthread_mutex_unlock(&args->global_lock);
+	}
 	return (NULL);
 }
 
@@ -96,21 +100,27 @@ void	*check_death(void *arg)
 	int		i;
 
 	args = (t_args *)arg;
-	pthread_mutex_lock(&args->global_lock);
-	while (!args->all_philosophers_done && !args->philosopher_died)
+	while (1)
 	{
-		pthread_mutex_unlock(&args->global_lock);
+		pthread_mutex_lock(&args->global_lock);
+		if (args->all_philosophers_done || args->philosopher_died)
+		{
+			pthread_mutex_unlock(&args->global_lock);
+			break ;
+		}
 		i = 0;
 		while (i < args->num_philosophers)
 		{
 			if (check_philosopher_death(args, i))
+			{
+				pthread_mutex_unlock(&args->global_lock);
 				return (NULL);
+			}
 			i++;
 		}
+		pthread_mutex_unlock(&args->global_lock);
 		usleep(3000);
-		pthread_mutex_lock(&args->global_lock);
 	}
-	pthread_mutex_unlock(&args->global_lock);
 	return (NULL);
 }
 
