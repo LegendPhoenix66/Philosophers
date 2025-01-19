@@ -25,6 +25,7 @@ typedef struct s_philosopher
 	int				meals_eaten;
 	int				alive;
 	struct timeval	last_meal_time;
+	pthread_mutex_t	philo_lock;
 	struct s_args	*args;
 }					t_philosopher;
 
@@ -39,6 +40,7 @@ typedef struct s_args
 	int				philosopher_died;
 	t_philosopher	*philosophers;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	global_lock;
 }					t_args;
 
 // utils.c

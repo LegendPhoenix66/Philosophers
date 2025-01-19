@@ -38,6 +38,7 @@ int	init_philosophers(t_args *args)
 		args->philosophers[i].args = args;
 		args->philosophers[i].alive = 1;
 		args->philosophers[i].meals_eaten = 0;
+		pthread_mutex_init(&args->philosophers[i].philo_lock, NULL);
 		gettimeofday(&args->philosophers[i].last_meal_time, NULL);
 		i++;
 	}
@@ -64,6 +65,7 @@ int	init_t_args(t_args *args, int argc, char *argv[])
 	args->time_to_sleep = ft_atoi(argv[4]);
 	args->all_philosophers_done = 0;
 	args->philosopher_died = 0;
+	pthread_mutex_init(&args->global_lock, NULL);
 	if (argc == 6)
 	{
 		args->num_times_each_philosopher_must_eat = ft_atoi(argv[5]);

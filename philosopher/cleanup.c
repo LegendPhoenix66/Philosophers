@@ -20,8 +20,10 @@ void	cleanup(t_args *args)
 	while (i < args->num_philosophers)
 	{
 		pthread_mutex_destroy(&args->forks[i]);
+		pthread_mutex_destroy(&args->philosophers[i].philo_lock);
 		i++;
 	}
+	pthread_mutex_destroy(&args->global_lock);
 	free(args->forks);
 	free(args->philosophers);
 }
