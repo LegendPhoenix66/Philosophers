@@ -35,7 +35,7 @@ typedef struct s_args
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				num_times_each_philosopher_must_eat;
+	int				total_meals;
 	int				all_philosophers_done;
 	int				philosopher_died;
 	t_philosopher	*philosophers;
@@ -62,5 +62,8 @@ void				print_log(t_args *args, const t_philosopher *philo,
 
 // cleanup.c
 void				cleanup(t_args *args);
+
+// death.c
+void				*check_death(void *arg);
 
 #endif // PHILOSOPHERS_H

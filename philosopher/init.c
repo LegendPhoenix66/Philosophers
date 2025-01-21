@@ -68,15 +68,15 @@ int	init_t_args(t_args *args, int argc, char *argv[])
 	pthread_mutex_init(&args->global_lock, NULL);
 	if (argc == 6)
 	{
-		args->num_times_each_philosopher_must_eat = ft_atoi(argv[5]);
-		if (args->num_times_each_philosopher_must_eat < 0)
+		args->total_meals = ft_atoi(argv[5]);
+		if (args->total_meals < 0)
 		{
 			printf("Invalid arguments\n");
 			return (1);
 		}
 	}
 	else
-		args->num_times_each_philosopher_must_eat = -1;
+		args->total_meals = -1;
 	if (!validate_args(args->num_philosophers, args->time_to_die,
 			args->time_to_eat, args->time_to_sleep))
 	{

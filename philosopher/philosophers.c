@@ -20,7 +20,7 @@ int	all_philosophers_done(t_args *args)
 	while (i < args->num_philosophers)
 	{
 		pthread_mutex_lock(&args->philosophers[i].philo_lock);
-		if (args->philosophers[i].meals_eaten < args->num_times_each_philosopher_must_eat)
+		if (args->philosophers[i].meals_eaten < args->total_meals)
 		{
 			pthread_mutex_unlock(&args->philosophers[i].philo_lock);
 			return (0);
@@ -31,95 +31,47 @@ int	all_philosophers_done(t_args *args)
 	return (1);
 }
 
+static int	check_and_handle_philosopher_died(t_args *shared_args)
+{
+	int	philosopher_died;
+
+	pthread_mutex_lock(&shared_args->global_lock);
+	philosopher_died = shared_args->philosopher_died;
+	pthread_mutex_unlock(&shared_args->global_lock);
+	return (philosopher_died);
+}
+
+static void	run_philosopher_cycle(t_philosopher *philosopher,
+		t_args *shared_args)
+{
+	print_log(shared_args, philosopher, "is thinking");
+	philosopher_eat(shared_args, philosopher);
+	pthread_mutex_lock(&philosopher->philo_lock);
+	philosopher->meals_eaten++;
+	pthread_mutex_unlock(&philosopher->philo_lock);
+	print_log(shared_args, philosopher, "is sleeping");
+	usleep(shared_args->time_to_sleep * 1000);
+}
+
 void	*philosopher_thread(void *arg)
 {
 	t_philosopher	*philosopher;
-	t_args			*args;
+	t_args			*shared_args;
 
 	philosopher = (t_philosopher *)arg;
-	args = philosopher->args;
-	while ((args->num_times_each_philosopher_must_eat > philosopher->meals_eaten
-			|| args->num_times_each_philosopher_must_eat == -1))
+	shared_args = philosopher->args;
+	while ((shared_args->total_meals > philosopher->meals_eaten
+			|| shared_args->total_meals == -1))
 	{
-		pthread_mutex_lock(&args->global_lock);
-		if (args->philosopher_died)
-		{
-			pthread_mutex_unlock(&args->global_lock);
+		if (check_and_handle_philosopher_died(shared_args))
 			break ;
-		}
-		pthread_mutex_unlock(&args->global_lock);
-		print_log(args, philosopher, "is thinking");
-		philosopher_eat(args, philosopher);
-		pthread_mutex_lock(&philosopher->philo_lock);
-		philosopher->meals_eaten++;
-		pthread_mutex_unlock(&philosopher->philo_lock);
-		print_log(args, philosopher, "is sleeping");
-		usleep(philosopher->args->time_to_sleep * 1000);
+		run_philosopher_cycle(philosopher, shared_args);
 	}
-	if (all_philosophers_done(args))
+	if (all_philosophers_done(shared_args))
 	{
-		pthread_mutex_lock(&args->global_lock);
-		args->all_philosophers_done = 1;
-		pthread_mutex_unlock(&args->global_lock);
-	}
-	return (NULL);
-}
-
-int	check_philosopher_death(t_args *args, int i)
-{
-	struct timeval	current_time;
-	long			time_diff;
-
-	pthread_mutex_lock(&args->philosophers[i].philo_lock);
-	if (args->philosophers[i].meals_eaten >= args->num_times_each_philosopher_must_eat
-		&& args->num_times_each_philosopher_must_eat != -1)
-	{
-		pthread_mutex_unlock(&args->philosophers[i].philo_lock);
-		return (0);
-	}
-	gettimeofday(&current_time, NULL);
-	time_diff = (current_time.tv_sec * 1000 + current_time.tv_usec / 1000)
-		- (args->philosophers[i].last_meal_time.tv_sec * 1000
-			+ args->philosophers[i].last_meal_time.tv_usec / 1000);
-	if (time_diff > args->time_to_die + 1)
-	{
-		print_log(args, &args->philosophers[i], "died");
-		pthread_mutex_lock(&args->global_lock);
-		args->philosopher_died = 1;
-		pthread_mutex_unlock(&args->global_lock);
-		pthread_mutex_unlock(&args->philosophers[i].philo_lock);
-		return (1);
-	}
-	pthread_mutex_unlock(&args->philosophers[i].philo_lock);
-	return (0);
-}
-
-void	*check_death(void *arg)
-{
-	t_args	*args;
-	int		i;
-
-	args = (t_args *)arg;
-	while (1)
-	{
-		pthread_mutex_lock(&args->global_lock);
-		if (args->all_philosophers_done || args->philosopher_died)
-		{
-			pthread_mutex_unlock(&args->global_lock);
-			break ;
-		}
-		i = 0;
-		while (i < args->num_philosophers)
-		{
-			if (check_philosopher_death(args, i))
-			{
-				pthread_mutex_unlock(&args->global_lock);
-				return (NULL);
-			}
-			i++;
-		}
-		pthread_mutex_unlock(&args->global_lock);
-		usleep(3000);
+		pthread_mutex_lock(&shared_args->global_lock);
+		shared_args->all_philosophers_done = 1;
+		pthread_mutex_unlock(&shared_args->global_lock);
 	}
 	return (NULL);
 }
