@@ -6,7 +6,7 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 09:49:43 by lhopp             #+#    #+#             */
-/*   Updated: 2024/11/27 09:49:47 by lhopp            ###   ########.fr       */
+/*   Updated: 2025/01/21 10:13:43 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,10 @@ void	pick_up_forks(t_args *args, t_philosopher *philosopher)
 	}
 	determine_forks(philosopher, &first_fork, &second_fork);
 	pthread_mutex_lock(&philosopher->args->forks[first_fork]);
-	print_log(args, philosopher, "is picking up the left fork");
+	print_log(args, philosopher, "is picking up the first fork");
 	pthread_mutex_lock(&philosopher->args->forks[(second_fork)
 		% philosopher->args->num_philosophers]);
-	print_log(args, philosopher, "is picking up the right fork");
+	print_log(args, philosopher, "is picking up the second fork");
 }
 
 void	put_down_forks(t_args *args, t_philosopher *philosopher)
@@ -70,10 +70,10 @@ void	put_down_forks(t_args *args, t_philosopher *philosopher)
 		return ;
 	}
 	pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
-	print_log(args, philosopher, "is putting down the right fork");
+	print_log(args, philosopher, "is putting down the first fork");
 	pthread_mutex_unlock(&philosopher->args->forks[(second_fork)
 		% philosopher->args->num_philosophers]);
-	print_log(args, philosopher, "is putting down the left fork");
+	print_log(args, philosopher, "is putting down the second fork");
 }
 
 void	philosopher_eat(t_args *args, t_philosopher *philosopher)
@@ -83,7 +83,9 @@ void	philosopher_eat(t_args *args, t_philosopher *philosopher)
 	if (!philosopher->args->philosopher_died)
 	{
 		print_log(args, philosopher, "is eating");
+		pthread_mutex_lock(&philosopher->philo_lock);
 		gettimeofday(&philosopher->last_meal_time, NULL);
+		pthread_mutex_unlock(&philosopher->philo_lock);
 		usleep(philosopher->args->time_to_eat * 1000);
 	}
 	put_down_forks(args, philosopher);
