@@ -6,7 +6,7 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 09:49:43 by lhopp             #+#    #+#             */
-/*   Updated: 2025/01/21 10:13:43 by lhopp            ###   ########.fr       */
+/*   Updated: 2025/01/21 14:13:16 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,14 @@ void	handle_single_philosopher(t_args *args, t_philosopher *philosopher)
 {
 	pthread_mutex_lock(&philosopher->args->forks[philosopher->id]);
 	print_log(args, philosopher, "is picking up the left fork");
+	pthread_mutex_lock(&philosopher->args->global_lock);
 	while (!philosopher->args->philosopher_died)
+	{
+		pthread_mutex_unlock(&philosopher->args->global_lock);
 		usleep(1000);
+		pthread_mutex_lock(&philosopher->args->global_lock);
+	}
+	pthread_mutex_unlock(&philosopher->args->global_lock);
 	pthread_mutex_unlock(&philosopher->args->forks[philosopher->id]);
 }
 
@@ -61,6 +67,8 @@ void	put_down_forks(t_args *args, t_philosopher *philosopher)
 	int	first_fork;
 	int	second_fork;
 
+	if (philosopher->args->num_philosophers == 1)
+		return ;
 	determine_forks(philosopher, &first_fork, &second_fork);
 	if (philosopher->args->philosopher_died)
 	{
