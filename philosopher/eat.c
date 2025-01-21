@@ -6,7 +6,7 @@
 /*   By: lhopp <lhopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 09:49:43 by lhopp             #+#    #+#             */
-/*   Updated: 2025/01/21 14:13:16 by lhopp            ###   ########.fr       */
+/*   Updated: 2025/01/21 14:16:36 by lhopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,16 @@ void	put_down_forks(t_args *args, t_philosopher *philosopher)
 	if (philosopher->args->num_philosophers == 1)
 		return ;
 	determine_forks(philosopher, &first_fork, &second_fork);
+	pthread_mutex_lock(&philosopher->args->global_lock);
 	if (philosopher->args->philosopher_died)
 	{
+		pthread_mutex_unlock(&philosopher->args->global_lock);
 		pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
 		pthread_mutex_unlock(&philosopher->args->forks[(second_fork)
 			% philosopher->args->num_philosophers]);
 		return ;
 	}
+	pthread_mutex_unlock(&philosopher->args->global_lock);
 	pthread_mutex_unlock(&philosopher->args->forks[first_fork]);
 	print_log(args, philosopher, "is putting down the first fork");
 	pthread_mutex_unlock(&philosopher->args->forks[(second_fork)
